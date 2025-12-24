@@ -11,6 +11,10 @@ npm-debug.*
 web-build/
 .env
 
+# Documentation files
+*.md
+!README.md
+
 # macOS
 .DS_Store
 
