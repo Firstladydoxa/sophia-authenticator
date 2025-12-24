@@ -1,0 +1,98 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Account, StorageData } from '../types';
+
+const STORAGE_KEY = '@authenticator_accounts';
+const STORAGE_VERSION = '1.0';
+
+/**
+ * Load all accounts from storage
+ */
+export async function loadAccounts(): Promise<Account[]> {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (!data) {
+      return [];
+    }
+
+    const parsed: StorageData = JSON.parse(data);
+    return parsed.accounts || [];
+  } catch (error) {
+    console.error('Error loading accounts:', error);
+    return [];
+  }
+}
+
+/**
+ * Save accounts to storage
+ */
+export async function saveAccounts(accounts: Account[]): Promise<void> {
+  try {
+    const data: StorageData = {
+      accounts,
+      version: STORAGE_VERSION,
+    };
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving accounts:', error);
+    throw error;
+  }
+}
+
+/**
+ * Add a new account
+ */
+export async function addAccount(account: Omit<Account, 'id' | 'createdAt'>): Promise<Account> {
+  const accounts = await loadAccounts();
+  
+  const newAccount: Account = {
+    ...account,
+    id: generateId(),
+    createdAt: Date.now(),
+  };
+
+  accounts.push(newAccount);
+  await saveAccounts(accounts);
+  
+  return newAccount;
+}
+
+/**
+ * Delete an account by ID
+ */
+export async function deleteAccount(id: string): Promise<void> {
+  const accounts = await loadAccounts();
+  const filtered = accounts.filter(acc => acc.id !== id);
+  await saveAccounts(filtered);
+}
+
+/**
+ * Update an account
+ */
+export async function updateAccount(id: string, updates: Partial<Account>): Promise<void> {
+  const accounts = await loadAccounts();
+  const index = accounts.findIndex(acc => acc.id === id);
+  
+  if (index !== -1) {
+    accounts[index] = { ...accounts[index], ...updates };
+    await saveAccounts(accounts);
+  }
+}
+
+/**
+ * Generate a unique ID
+ */
+function generateId(): string {
+  return `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Clear all data (for testing or reset)
+ */
+export async function clearAllData(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Error clearing data:', error);
+    throw error;
+  }
+}
