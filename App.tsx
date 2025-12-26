@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './navigation/types';
 import HomeScreen from './screens/HomeScreen';
 import ScanQRScreen from './screens/ScanQRScreen';
+import AccountDetailsScreen from './screens/AccountDetailsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,10 @@ export default function App() {
             options={{
               presentation: 'fullScreenModal',
             }}
+          />
+          <Stack.Screen 
+            name="AccountDetails" 
+            component={AccountDetailsScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>

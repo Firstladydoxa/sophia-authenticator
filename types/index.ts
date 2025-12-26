@@ -1,3 +1,5 @@
+export type AuthMethod = 'totp' | 'biometric' | 'passkey' | 'screenlock';
+
 export interface Account {
   id: string;
   issuer: string;
@@ -6,6 +8,8 @@ export interface Account {
   digits: number;
   period: number;
   createdAt: number;
+  authMethods?: AuthMethod[];
+  preferredAuthMethod?: AuthMethod;
 }
 
 export interface StorageData {

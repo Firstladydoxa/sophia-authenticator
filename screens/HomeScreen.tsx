@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import AccountCard from '../components/AccountCard';
+import AccountAccordion from '../components/AccountAccordion';
 import AddAccountModal from '../components/AddAccountModal';
 import { Account } from '../types';
 import { loadAccounts, addAccount, deleteAccount } from '../utils/storage';
@@ -108,7 +108,7 @@ export default function HomeScreen() {
           data={accounts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <AccountCard account={item} onDelete={handleDeleteAccount} />
+            <AccountAccordion account={item} onDelete={handleDeleteAccount} />
           )}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />

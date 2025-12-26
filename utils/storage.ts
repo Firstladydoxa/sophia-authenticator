@@ -68,13 +68,23 @@ export async function deleteAccount(id: string): Promise<void> {
 /**
  * Update an account
  */
-export async function updateAccount(id: string, updates: Partial<Account>): Promise<void> {
+export async function updateAccount(accountOrId: Account | string, updates?: Partial<Account>): Promise<void> {
   const accounts = await loadAccounts();
-  const index = accounts.findIndex(acc => acc.id === id);
   
-  if (index !== -1) {
-    accounts[index] = { ...accounts[index], ...updates };
-    await saveAccounts(accounts);
+  if (typeof accountOrId === 'string') {
+    // Old signature: updateAccount(id, updates)
+    const index = accounts.findIndex(acc => acc.id === accountOrId);
+    if (index !== -1 && updates) {
+      accounts[index] = { ...accounts[index], ...updates };
+      await saveAccounts(accounts);
+    }
+  } else {
+    // New signature: updateAccount(account)
+    const index = accounts.findIndex(acc => acc.id === accountOrId.id);
+    if (index !== -1) {
+      accounts[index] = accountOrId;
+      await saveAccounts(accounts);
+    }
   }
 }
 
