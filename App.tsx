@@ -36,24 +36,18 @@ function TabNavigator() {
           backgroundColor: '#1a1a2e',
           borderTopWidth: 1,
           borderTopColor: 'rgba(255, 255, 255, 0.1)',
-          paddingBottom: 0,
+          paddingBottom: 8,
           paddingTop: 8,
-          height: 60,
+          height: 70,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.3,
           shadowRadius: 5,
           elevation: 10,
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: '600',
-          marginBottom: 4,
-          marginTop: -2,
         },
       }}
     >
@@ -139,6 +133,7 @@ function AppNavigator() {
 
   return (
     <>
+      <StatusBar style="light" backgroundColor="#1a1a2e" />
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

@@ -87,7 +87,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Sophia Authenticator</Text>
         <Text style={styles.headerSubtitle}>
@@ -197,11 +197,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 16,
-    paddingBottom: 160,
+    paddingBottom: 120,
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 75,
+    bottom: 90,
     left: 0,
     right: 0,
     flexDirection: 'row',

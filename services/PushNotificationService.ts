@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform, PermissionsAndroid, Alert } from 'react-native';
 
 const API_URL = 'https://bouquet.tniglobal.org/api';
 const FCM_TOKEN_KEY = '@fcm_token';
@@ -61,6 +62,70 @@ class PushNotificationService {
    */
   async requestPermissions(): Promise<boolean> {
     try {
+      // For Android 13+ (API 33+), we need to request POST_NOTIFICATIONS permission
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        console.log('Android 13+ detected, requesting POST_NOTIFICATIONS permission...');
+        
+        // Check if permission already granted
+        const alreadyGranted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+
+        if (alreadyGranted) {
+          console.log('POST_NOTIFICATIONS permission already granted');
+          return true;
+        }
+
+        // Show a user-friendly alert before requesting
+        return new Promise((resolve) => {
+          Alert.alert(
+            'Enable Push Notifications',
+            'This app needs notification permissions to send you login approval requests from Bouquet Apps. You can approve or reject login attempts directly from notifications.',
+            [
+              {
+                text: 'Not Now',
+                style: 'cancel',
+                onPress: () => {
+                  console.log('User declined notification permissions');
+                  resolve(false);
+                },
+              },
+              {
+                text: 'Enable',
+                onPress: async () => {
+                  // Request the permission
+                  const result = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+                    {
+                      title: 'Notification Permission',
+                      message: 'Allow Authenticator to send you notifications?',
+                      buttonPositive: 'Allow',
+                      buttonNegative: 'Deny',
+                    }
+                  );
+
+                  const granted = result === PermissionsAndroid.RESULTS.GRANTED;
+                  console.log('POST_NOTIFICATIONS permission result:', result, granted);
+                  
+                  if (!granted) {
+                    Alert.alert(
+                      'Notifications Disabled',
+                      'Push notifications are disabled. You can enable them later in Settings > Apps > Authenticator > Notifications.',
+                      [{ text: 'OK' }]
+                    );
+                  }
+                  
+                  resolve(granted);
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        });
+      }
+
+      // For iOS and older Android, use Firebase's requestPermission
+      console.log('Using Firebase requestPermission...');
       const authStatus = await messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
