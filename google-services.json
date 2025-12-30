@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:87234256152:android:60b48d47244a85f90c126d",
+        "mobilesdk_app_id": "1:87234256152:android:70e69a9aadb371da0c126d",
         "android_client_info": {
-          "package_name": "com.tniglobal.bouquet_apps"
+          "package_name": "com.authenticator.app"
         }
       },
       "oauth_client": [],

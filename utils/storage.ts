@@ -54,6 +54,21 @@ export async function addAccount(account: Omit<Account, 'id' | 'createdAt'>): Pr
   accounts.push(newAccount);
   await saveAccounts(accounts);
   
+  // For first account, ensure push notifications are initialized
+  if (accounts.length === 1) {
+    try {
+      console.log('First account added - initializing push notifications...');
+      const initialized = await PushNotificationService.initialize();
+      if (initialized) {
+        console.log('Push notifications initialized successfully');
+      } else {
+        console.log('Push notifications initialization failed - user may have denied permissions');
+      }
+    } catch (error) {
+      console.error('Error initializing push notifications:', error);
+    }
+  }
+  
   // Register FCM token if account has email
   if (newAccount.account && newAccount.account.includes('@')) {
     try {

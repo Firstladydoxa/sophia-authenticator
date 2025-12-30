@@ -87,7 +87,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Sophia Authenticator</Text>
         <Text style={styles.headerSubtitle}>
@@ -137,7 +137,7 @@ export default function HomeScreen() {
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddAccount}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#007AFF',
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 30,
   },
   headerTitle: {
@@ -197,18 +197,18 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 16,
-    paddingBottom: 140,
+    paddingBottom: 160,
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 50,
+    bottom: 75,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 0,
   },
   fab: {
     paddingHorizontal: 24,
