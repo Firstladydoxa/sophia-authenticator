@@ -30,24 +30,25 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
+        tabBarActiveTintColor: '#4dabf7',
+        tabBarInactiveTintColor: '#999',
         tabBarStyle: {
-          backgroundColor: '#1a1a2e',
+          backgroundColor: '#f8f9fa',
           borderTopWidth: 1,
-          borderTopColor: 'rgba(255, 255, 255, 0.1)',
+          borderTopColor: '#d1d5db',
           paddingBottom: 8,
           paddingTop: 8,
-          height: 70,
+          height: 65,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 5,
-          elevation: 10,
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          marginBottom: 2,
         },
       }}
     >
@@ -133,7 +134,6 @@ function AppNavigator() {
 
   return (
     <>
-      <StatusBar style="light" backgroundColor="#1a1a2e" />
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

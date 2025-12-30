@@ -1,4 +1,4 @@
-package com.authenticator.app
+package com.sophiaauthenticator
 
 import android.os.Build
 import android.os.Bundle

@@ -231,7 +231,7 @@ export default function SecuritySettingsScreen() {
 
   if (setupMode) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleCancelSetup}>
             <Text style={styles.cancelButton}>Cancel</Text>
@@ -272,7 +272,7 @@ export default function SecuritySettingsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Security Settings</Text>
       </View>
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     marginTop: 20,
-    marginBottom: 60,
+    marginBottom: 40,
     paddingHorizontal: 16,
   },
   infoText: {

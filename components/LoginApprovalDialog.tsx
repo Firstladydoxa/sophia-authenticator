@@ -5,7 +5,7 @@ import axios from 'axios';
 import { loadAccounts } from '../utils/storage';
 import { generateTOTP } from '../utils/totp';
 
-const API_URL = 'https://bouquet.tniglobal.org/api';
+const API_URL = 'https://lwtranslationservices.tniglobal.org/api';
 
 interface LoginApprovalDialogProps {
   visible: boolean;

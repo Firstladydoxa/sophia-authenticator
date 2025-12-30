@@ -3,7 +3,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, PermissionsAndroid, Alert } from 'react-native';
 
-const API_URL = 'https://bouquet.tniglobal.org/api';
+const API_URL = 'https://lwtranslationservices.tniglobal.org/api';
 const FCM_TOKEN_KEY = '@fcm_token';
 
 export interface PushNotificationData {
