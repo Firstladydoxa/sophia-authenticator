@@ -17,7 +17,7 @@ import { Account } from '../types';
 import { loadAccounts, addAccount, deleteAccount } from '../utils/storage';
 import { RootStackParamList } from '../navigation/types';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
@@ -89,7 +89,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Authenticator</Text>
+        <Text style={styles.headerTitle}>Sophia Authenticator</Text>
         <Text style={styles.headerSubtitle}>
           {accounts.length} {accounts.length === 1 ? 'account' : 'accounts'}
         </Text>
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
     color: '#fff',
     marginBottom: 4,

@@ -1,17 +1,30 @@
 # Authentication App
 
-A fully-featured React Native authentication app built with Expo for managing Time-based One-Time Passwords (TOTP) for two-factor authentication.
+A comprehensive React Native authenticator app built with Expo that provides centralized authentication services for multiple applications.
 
-## Features
+## ✨ Features
 
-✅ **Add Accounts**: Add new 2FA accounts manually or by scanning QR codes
-✅ **Generate TOTP Codes**: Automatic generation of 6-8 digit time-based codes
-✅ **QR Code Scanner**: Scan QR codes from service providers to quickly add accounts
-✅ **Visual Timer**: Progress bar showing remaining time before code refresh
-✅ **Copy to Clipboard**: Tap any code to copy it instantly
-✅ **Persistent Storage**: Secure local storage of all accounts
-✅ **Delete Accounts**: Remove accounts with confirmation
-✅ **Custom Settings**: Configure code digits (6-8) and refresh period (15-60s)
+### Core Authentication
+- 🔐 **TOTP (Time-based OTP)** - Industry-standard 2FA codes
+- 👆 **Biometric** - Fingerprint & Face ID support  
+- 🔑 **Passkey** - WebAuthn/FIDO2 authentication
+- 🔒 **Screen Lock** - Device security integration
+- 🔢 **PIN** ⭐ NEW - Quick 4-6 digit authentication
+- 🎨 **Pattern** ⭐ NEW - Visual pattern lock
+
+### Centralized Authentication System ⭐ NEW
+- 📱 **Multi-App Support** - Single authenticator for all your apps
+- 🌐 **Backend API** - Complete RESTful API server
+- 🗄️ **Database Management** - MySQL-backed authentication storage
+- 🔐 **Advanced Security** - HMAC signatures, encryption, rate limiting
+- 📊 **Audit Logging** - Comprehensive activity tracking
+- ⚡ **Real-time Approval** - Push notifications and callbacks
+
+### Account Management
+- ✅ Add accounts via QR code scanning
+- 🗂️ Organize multiple accounts
+- 🎯 Quick access to TOTP codes
+- ⚙️ Per-account settings and preferences
 
 ## Installation
 
@@ -149,3 +162,48 @@ MIT
 ## Support
 
 For issues and feature requests, please create an issue in the repository.
+
+## 🚀 Backend API Setup ⭐ NEW
+
+### Prerequisites
+- Node.js 14+
+- MySQL 5.7+ or MariaDB 10.3+
+
+### Quick Setup
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Edit .env with database credentials
+npm run init-db
+npm run dev
+```
+
+## 📚 Documentation
+
+### Quick Reference
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Commands and common tasks
+- **[UPDATES.md](./UPDATES.md)** - What's new in v2.0
+
+### Implementation Guides
+- **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)** - Complete setup guide
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture
+- **[COMPLETION_SUMMARY.md](./COMPLETION_SUMMARY.md)** - Implementation details
+
+### API & Integration
+- **[REQUIREMENTS_FOR_AUTHENTICATOR.md](./REQUIREMENTS_FOR_AUTHENTICATOR.md)** - API specs
+- **[backend/README.md](./backend/README.md)** - Backend API docs
+
+## 🎉 Version 2.0 Features
+
+✨ **Backend API** - Complete centralized auth system  
+✨ **Database** - MySQL with 5 tables  
+✨ **PIN Auth** - 4-6 digit numeric authentication  
+✨ **Pattern Lock** - Visual pattern authentication  
+✨ **Multi-App** - Support multiple connected apps  
+✨ **Security** - HMAC, encryption, rate limiting, audit logging  
+
+**Status**: Production Ready ✅
+
+---
+**Version**: 2.0.0 | **Updated**: December 28, 2025

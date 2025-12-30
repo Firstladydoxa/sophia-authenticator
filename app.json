@@ -11,12 +11,18 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.authenticator.app"
+      "bundleIdentifier": "com.authenticator.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access camera for scanning QR codes"
+      }
     },
     "android": {
       "package": "com.authenticator.app",
+      "googleServicesFile": "./google-services.json",
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "POST_NOTIFICATIONS",
+        "android.permission.CAMERA"
       ]
     },
     "plugins": [
@@ -25,7 +31,14 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access camera for scanning QR codes"
         }
-      ]
-    ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c1f17c6b-8403-41c8-b812-06522e422488"
+      }
+    }
   }
 }

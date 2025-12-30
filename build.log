@@ -1,0 +1,10 @@
+WARNING:root:could not open file '/etc/apt/sources.list.d/cpanel-plugins.list'
+
+Command 'eas' not found, did you mean:
+  command 'jas' from snap just-an-installer (0.3.2)
+  command 'eos' from deb elk-lapw (7.2.42-2)
+  command 'as' from deb binutils (2.38-4ubuntu2.12)
+  command 'cas' from deb amule-utils (1:2.3.3-2)
+  command 'eus' from deb euslisp (9.27+dfsg-7)
+  command 'kas' from deb kas (2.6.3-2)
+See 'snap info <snapname>' for additional versions.

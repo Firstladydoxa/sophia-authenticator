@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Account, StorageData } from '../types';
+import PushNotificationService from '../services/PushNotificationService';
 
 const STORAGE_KEY = '@authenticator_accounts';
 const STORAGE_VERSION = '1.0';
@@ -53,6 +54,17 @@ export async function addAccount(account: Omit<Account, 'id' | 'createdAt'>): Pr
   accounts.push(newAccount);
   await saveAccounts(accounts);
   
+  // Register FCM token if account has email
+  if (newAccount.account && newAccount.account.includes('@')) {
+    try {
+      await PushNotificationService.registerToken(newAccount.account);
+      console.log('FCM token registered for:', newAccount.account);
+    } catch (error) {
+      console.error('Error registering FCM token:', error);
+      // Don't fail the account creation if FCM registration fails
+    }
+  }
+  
   return newAccount;
 }
 
@@ -61,6 +73,19 @@ export async function addAccount(account: Omit<Account, 'id' | 'createdAt'>): Pr
  */
 export async function deleteAccount(id: string): Promise<void> {
   const accounts = await loadAccounts();
+  const accountToDelete = accounts.find(acc => acc.id === id);
+  
+  // Unregister FCM token if account has an email (push notifications)
+  if (accountToDelete?.account && accountToDelete.account.includes('@')) {
+    try {
+      await PushNotificationService.unregisterToken(accountToDelete.account);
+      console.log('FCM token unregistered for:', accountToDelete.account);
+    } catch (error) {
+      console.error('Error unregistering FCM token:', error);
+      // Continue with deletion even if unregistration fails
+    }
+  }
+  
   const filtered = accounts.filter(acc => acc.id !== id);
   await saveAccounts(filtered);
 }
@@ -106,3 +131,9 @@ export async function clearAllData(): Promise<void> {
     throw error;
   }
 }
+
+/**
+ * Alias for backward compatibility
+ */
+export const getAccounts = loadAccounts;
+

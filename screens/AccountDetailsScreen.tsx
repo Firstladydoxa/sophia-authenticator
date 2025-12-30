@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Clipboard from 'expo-clipboard';
 import { Account, AuthMethod } from '../types';
@@ -36,6 +36,8 @@ import {
   showPasskeyAuthPrompt,
   deletePasskey,
 } from '../utils/passkey';
+import { hasPinSetup, setupPin, verifyPin, removePin } from '../utils/pin';
+import { hasPatternSetup, setupPattern, verifyPattern, removePattern, PatternPoint } from '../utils/pattern';
 import { loadAccounts, updateAccount } from '../utils/storage';
 
 type AccountDetailsRouteProp = RouteProp<RootStackParamList, 'AccountDetails'>;
@@ -57,13 +59,26 @@ export default function AccountDetailsScreen() {
   const [screenLockAvailable, setScreenLockAvailable] = useState(false);
   const [passkeyExists, setPasskeyExists] = useState(false);
   const [passkeyName, setPasskeyName] = useState('');
+  const [pinExists, setPinExists] = useState(false);
+  const [patternExists, setPatternExists] = useState(false);
 
   useEffect(() => {
     loadAccountData();
     checkBiometricAvailability();
     checkScreenLockAvail();
     checkPasskeyStatus();
+    checkPinStatus();
+    checkPatternStatus();
   }, [accountId]);
+
+  // Reload PIN/Pattern status when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      checkPinStatus();
+      checkPatternStatus();
+      loadAccountData(); // Reload account to get updated auth methods
+    }, [accountId])
+  );
 
   useEffect(() => {
     if (!account) return;
@@ -144,6 +159,20 @@ export default function AccountDetailsScreen() {
     }
   };
 
+  const checkPinStatus = async () => {
+    if (accountId) {
+      const exists = await hasPinSetup(accountId);
+      setPinExists(exists);
+    }
+  };
+
+  const checkPatternStatus = async () => {
+    if (accountId) {
+      const exists = await hasPatternSetup(accountId);
+      setPatternExists(exists);
+    }
+  };
+
   const handleToggleAuthMethod = async (method: AuthMethod) => {
     if (!account) return;
 
@@ -180,6 +209,54 @@ export default function AccountDetailsScreen() {
         );
         return;
       }
+
+      // Special handling for removing PIN
+      if (method === 'pin') {
+        Alert.alert(
+          'Remove PIN',
+          'This will delete your stored PIN. You can create a new one later.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Remove',
+              style: 'destructive',
+              onPress: async () => {
+                await removePin(accountId);
+                setPinExists(false);
+                updatedMethods = currentMethods.filter(m => m !== method);
+                const updatedAccount = { ...account, authMethods: updatedMethods };
+                await updateAccount(updatedAccount);
+                setAccount(updatedAccount);
+              },
+            },
+          ]
+        );
+        return;
+      }
+
+      // Special handling for removing Pattern
+      if (method === 'pattern') {
+        Alert.alert(
+          'Remove Pattern',
+          'This will delete your stored pattern. You can create a new one later.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Remove',
+              style: 'destructive',
+              onPress: async () => {
+                await removePattern(accountId);
+                setPatternExists(false);
+                updatedMethods = currentMethods.filter(m => m !== method);
+                const updatedAccount = { ...account, authMethods: updatedMethods };
+                await updateAccount(updatedAccount);
+                setAccount(updatedAccount);
+              },
+            },
+          ]
+        );
+        return;
+      }
       
       updatedMethods = currentMethods.filter(m => m !== method);
     } else {
@@ -206,6 +283,24 @@ export default function AccountDetailsScreen() {
           showPasskeySetupPrompt(accountId, async () => {
             await checkPasskeyStatus();
           });
+          return;
+        }
+      }
+
+      // Check PIN/Pattern setup when enabling
+      if (method === 'pin') {
+        if (!pinExists) {
+          // Navigate to PIN setup
+          navigation.navigate('SetupPin', { accountId });
+          // Don't add to methods yet - will be added in SetupPinScreen after successful setup
+          return;
+        }
+      }
+
+      if (method === 'pattern') {
+        if (!patternExists) {
+          // Navigate to Pattern setup
+          navigation.navigate('SetupPattern', { accountId });
           return;
         }
       }
@@ -273,6 +368,22 @@ export default function AccountDetailsScreen() {
     );
   };
 
+
+  const handleAuthenticateWithPin = () => {
+    if (!pinExists) {
+      Alert.alert('No PIN', 'Please create a PIN first by enabling this method.');
+      return;
+    }
+    navigation.navigate('VerifyPin', { accountId });
+  };
+
+  const handleAuthenticateWithPattern = () => {
+    if (!patternExists) {
+      Alert.alert('No Pattern', 'Please create a pattern first by enabling this method.');
+      return;
+    }
+    navigation.navigate('VerifyPattern', { accountId });
+  };
   const handleAuthenticateWithScreenLock = async () => {
     setAuthenticating(true);
     const result = await authenticateWithScreenLock(
@@ -424,7 +535,7 @@ export default function AccountDetailsScreen() {
                     style={styles.setPreferredButton}
                     onPress={() => handleSetPreferredMethod('biometric')}
                   >
-                    <Text style={styles.setPreferredText}>Set as Preferred</Text>
+                    <Text style={styles.setPreferredText}>Set as Preferred method</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -457,12 +568,6 @@ export default function AccountDetailsScreen() {
 
             {enabledMethods.includes('passkey') && (
               <View style={styles.methodContent}>
-                <TouchableOpacity
-                  style={styles.authenticateButton}
-                  onPress={handleAuthenticateWithPasskey}
-                >
-                  <Text style={styles.authenticateButtonText}>Authenticate with Passkey</Text>
-                </TouchableOpacity>
                 {account.preferredAuthMethod === 'passkey' && (
                   <Text style={styles.preferredBadge}>⭐ Preferred</Text>
                 )}
@@ -471,7 +576,7 @@ export default function AccountDetailsScreen() {
                     style={styles.setPreferredButton}
                     onPress={() => handleSetPreferredMethod('passkey')}
                   >
-                    <Text style={styles.setPreferredText}>Set as Preferred</Text>
+                    <Text style={styles.setPreferredText}>Set as Preferred method</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -498,17 +603,6 @@ export default function AccountDetailsScreen() {
 
             {enabledMethods.includes('screenlock') && (
               <View style={styles.methodContent}>
-                <TouchableOpacity
-                  style={styles.authenticateButton}
-                  onPress={handleAuthenticateWithScreenLock}
-                  disabled={authenticating}
-                >
-                  {authenticating ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.authenticateButtonText}>Authenticate with Screen Lock</Text>
-                  )}
-                </TouchableOpacity>
                 {account.preferredAuthMethod === 'screenlock' && (
                   <Text style={styles.preferredBadge}>⭐ Preferred</Text>
                 )}
@@ -517,7 +611,103 @@ export default function AccountDetailsScreen() {
                     style={styles.setPreferredButton}
                     onPress={() => handleSetPreferredMethod('screenlock')}
                   >
-                    <Text style={styles.setPreferredText}>Set as Preferred</Text>
+                    <Text style={styles.setPreferredText}>Set as Preferred method</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* PIN Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PIN Authentication</Text>
+          <View style={styles.methodCard}>
+            <View style={styles.methodHeader}>
+              <View style={styles.methodInfo}>
+                <Text style={styles.methodIcon}>🔢</Text>
+                <Text style={styles.methodName}>PIN (4-6 digits)</Text>
+              </View>
+              <Switch
+                value={enabledMethods.includes('pin')}
+                onValueChange={() => handleToggleAuthMethod('pin')}
+                trackColor={{ false: '#ddd', true: '#007AFF' }}
+                thumbColor="#fff"
+              />
+            </View>
+
+            {pinExists && (
+              <Text style={styles.passkeyInfo}>
+                ✓ PIN configured
+              </Text>
+            )}
+
+            {enabledMethods.includes('pin') && (
+              <View style={styles.methodContent}>
+                <Text style={styles.testNote}>💡 Set your PIN for Authentication</Text>
+                <TouchableOpacity
+                  style={styles.authenticateButton}
+                  onPress={handleAuthenticateWithPin}
+                >
+                  <Text style={styles.authenticateButtonText}>Set PIN</Text>
+                </TouchableOpacity>
+                {account.preferredAuthMethod === 'pin' && (
+                  <Text style={styles.preferredBadge}>⭐ Preferred</Text>
+                )}
+                {account.preferredAuthMethod !== 'pin' && (
+                  <TouchableOpacity
+                    style={styles.setPreferredButton}
+                    onPress={() => handleSetPreferredMethod('pin')}
+                  >
+                    <Text style={styles.setPreferredText}>Set as Preferred method</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Pattern Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pattern Lock</Text>
+          <View style={styles.methodCard}>
+            <View style={styles.methodHeader}>
+              <View style={styles.methodInfo}>
+                <Text style={styles.methodIcon}>🎨</Text>
+                <Text style={styles.methodName}>Pattern (3x3 grid)</Text>
+              </View>
+              <Switch
+                value={enabledMethods.includes('pattern')}
+                onValueChange={() => handleToggleAuthMethod('pattern')}
+                trackColor={{ false: '#ddd', true: '#007AFF' }}
+                thumbColor="#fff"
+              />
+            </View>
+
+            {patternExists && (
+              <Text style={styles.passkeyInfo}>
+                ✓ Pattern configured
+              </Text>
+            )}
+
+            {enabledMethods.includes('pattern') && (
+              <View style={styles.methodContent}>
+                <Text style={styles.testNote}>💡 Set your pattern for Authentication</Text>
+                <TouchableOpacity
+                  style={styles.authenticateButton}
+                  onPress={handleAuthenticateWithPattern}
+                >
+                  <Text style={styles.authenticateButtonText}>Set Pattern</Text>
+                </TouchableOpacity>
+                {account.preferredAuthMethod === 'pattern' && (
+                  <Text style={styles.preferredBadge}>⭐ Preferred</Text>
+                )}
+                {account.preferredAuthMethod !== 'pattern' && (
+                  <TouchableOpacity
+                    style={styles.setPreferredButton}
+                    onPress={() => handleSetPreferredMethod('pattern')}
+                  >
+                    <Text style={styles.setPreferredText}>Set as Preferred method</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -678,6 +868,13 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#eee',
+  },
+  testNote: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 12,
+    lineHeight: 20,
   },
   authenticateButton: {
     backgroundColor: '#007AFF',

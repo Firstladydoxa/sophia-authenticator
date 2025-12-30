@@ -26,10 +26,10 @@ interface AccountAccordionProps {
   isExpanded?: boolean;
 }
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type AccountAccordionNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function AccountAccordion({ account, onDelete, isExpanded: initialExpanded = false }: AccountAccordionProps) {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const navigation = useNavigation<AccountAccordionNavigationProp>();
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [code, setCode] = useState<string>('------');
   const [remaining, setRemaining] = useState<number>(30);
