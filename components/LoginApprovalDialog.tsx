@@ -93,8 +93,8 @@ export default function LoginApprovalDialog({
         return;
       }
 
-      // Generate TOTP code
-      const totpCode = await generateTOTP(mfaSecret, Date.now());
+      // Generate TOTP code with default 30-second time step
+      const totpCode = await generateTOTP(mfaSecret);
 
       console.log('Approving login with TOTP:', totpCode);
 
