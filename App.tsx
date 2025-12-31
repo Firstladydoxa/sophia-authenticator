@@ -3,7 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import { Text } from 'react-native';
+import { Text, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import messaging from '@react-native-firebase/messaging';
 import { RootStackParamList } from './navigation/types';
 import { AppLockProvider, useAppLock } from './contexts/AppLockContext';
@@ -25,31 +26,36 @@ import PushNotificationService, { PushNotificationData } from './services/PushNo
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
-// Bottom Tab Navigator
+// Bottom Tab Navigator with proper safe area handling
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#4dabf7',
-        tabBarInactiveTintColor: '#999',
+        tabBarInactiveTintColor: '#666',
         tabBarStyle: {
-          backgroundColor: '#f8f9fa',
+          backgroundColor: '#ffffff',
           borderTopWidth: 1,
-          borderTopColor: '#d1d5db',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 65,
+          borderTopColor: '#e0e0e0',
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
+          paddingTop: 10,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : 10),
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
+          shadowOffset: { width: 0, height: -3 },
           shadowOpacity: 0.1,
-          shadowRadius: 3,
-          elevation: 8,
+          shadowRadius: 4,
+          elevation: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
-          marginBottom: 2,
+          marginTop: 2,
+        },
+        tabBarIconStyle: {
+          marginTop: 5,
         },
       }}
     >
