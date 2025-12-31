@@ -16,6 +16,7 @@ import VerifyPinScreen from './screens/VerifyPinScreen';
 import SetupPatternScreen from './screens/SetupPatternScreen';
 import VerifyPatternScreen from './screens/VerifyPatternScreen';
 import SecuritySettingsScreen from './screens/SecuritySettingsScreen';
+import HowToScreen from './screens/HowToScreen';
 import AppLockScreen from './screens/AppLockScreen';
 import OnboardingSetupScreen from './screens/OnboardingSetupScreen';
 import LoginApprovalDialog from './components/LoginApprovalDialog';
@@ -33,17 +34,17 @@ function TabNavigator() {
         tabBarActiveTintColor: '#4dabf7',
         tabBarInactiveTintColor: '#999',
         tabBarStyle: {
-          backgroundColor: '#1a1a2e',
+          backgroundColor: '#f8f9fa',
           borderTopWidth: 1,
-          borderTopColor: 'rgba(255, 255, 255, 0.1)',
+          borderTopColor: '#d1d5db',
           paddingBottom: 8,
           paddingTop: 8,
-          height: 70,
+          height: 65,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 5,
-          elevation: 10,
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -59,6 +60,16 @@ function TabNavigator() {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
             <Text style={{ fontSize: 24 }}>🏠</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="HowToTab"
+        component={HowToScreen}
+        options={{
+          tabBarLabel: 'How-To',
+          tabBarIcon: ({ color, size }) => (
+            <Text style={{ fontSize: 24 }}>📖</Text>
           ),
         }}
       />
