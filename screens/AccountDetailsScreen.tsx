@@ -336,11 +336,11 @@ export default function AccountDetailsScreen() {
     setAuthenticating(false);
 
     if (result.success) {
-      Alert.alert('Success', 'Biometric authentication successful!', [
+      Alert.alert('Success', 'Biometric Recognition successful!', [
         { text: 'OK' }
       ]);
     } else {
-      Alert.alert('Failed', result.error || 'Authentication failed');
+      Alert.alert('Failed', result.error || 'Biometric Recognition failed');
     }
   };
 
@@ -359,11 +359,11 @@ export default function AccountDetailsScreen() {
       accountId,
       () => {
         // Success callback - passkey verified
-        console.log('Passkey authentication successful');
+        console.log('Passkey Test successful');
       },
       (error) => {
         // Error callback
-        console.error('Passkey authentication failed:', error);
+        console.error('Passkey Test failed:', error);
       }
     );
   };
@@ -393,11 +393,11 @@ export default function AccountDetailsScreen() {
     setAuthenticating(false);
 
     if (result.success) {
-      Alert.alert('Success', 'Screen lock authentication successful!', [
+      Alert.alert('Success', 'Screen lock Test successful!', [
         { text: 'OK' }
       ]);
     } else {
-      Alert.alert('Failed', result.error || 'Authentication failed');
+      Alert.alert('Failed', result.error || 'Screen lock Test failed');
     }
   };
 
@@ -524,7 +524,7 @@ export default function AccountDetailsScreen() {
                   {authenticating ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.authenticateButtonText}>Authenticate Now</Text>
+                    <Text style={styles.authenticateButtonText}> Test Biometrics</Text>
                   )}
                 </TouchableOpacity>
                 {account.preferredAuthMethod === 'biometric' && (

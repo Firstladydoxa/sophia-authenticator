@@ -39,6 +39,7 @@
     "@babel/core": "^7.25.0",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "^54.0.9",
+    "pdfkit": "^0.17.2",
     "speakeasy": "^2.0.0",
     "typescript": "^5.3.0"
   },
