@@ -133,6 +133,82 @@ export default function HowToScreen() {
           </View>
         </View>
 
+        {/* App Lock Options */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🔐</Text>
+            <Text style={styles.sectionTitle}>Protect Your App with Multiple Lock Options</Text>
+          </View>
+          <Text style={styles.text}>
+            Secure your authenticator app with one of several convenient lock methods. 
+            Choose the option that works best for you:
+          </Text>
+          <View style={styles.securityOptions}>
+            <View style={styles.securityOption}>
+              <View style={styles.securityIconBg}>
+                <Text style={styles.securityOptionIcon}>🔢</Text>
+              </View>
+              <View style={styles.securityOptionContent}>
+                <Text style={styles.securityOptionTitle}>PIN Code Lock</Text>
+                <Text style={styles.securityOptionText}>
+                  Set a 4-6 digit PIN code for quick and secure access. Perfect for fast unlocking 
+                  while maintaining strong security.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.securityOption}>
+              <View style={[styles.securityIconBg, styles.purpleBg]}>
+                <Text style={styles.securityOptionIcon}>🔲</Text>
+              </View>
+              <View style={styles.securityOptionContent}>
+                <Text style={styles.securityOptionTitle}>Pattern Lock</Text>
+                <Text style={styles.securityOptionText}>
+                  Draw a custom pattern on a 3x3 grid. Intuitive and secure - unlock with a simple gesture.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.securityOption}>
+              <View style={[styles.securityIconBg, styles.greenBg]}>
+                <Text style={styles.securityOptionIcon}>👆</Text>
+              </View>
+              <View style={styles.securityOptionContent}>
+                <Text style={styles.securityOptionTitle}>Fingerprint Authentication</Text>
+                <Text style={styles.securityOptionText}>
+                  Use your device's fingerprint sensor for instant, secure access. The fastest way to unlock!
+                </Text>
+              </View>
+            </View>
+            <View style={styles.securityOption}>
+              <View style={[styles.securityIconBg, styles.orangeBg]}>
+                <Text style={styles.securityOptionIcon}>👤</Text>
+              </View>
+              <View style={styles.securityOptionContent}>
+                <Text style={styles.securityOptionTitle}>Face Recognition</Text>
+                <Text style={styles.securityOptionText}>
+                  Unlock with just a glance using your device's facial recognition technology. 
+                  Convenient and secure.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.securityOption}>
+              <View style={[styles.securityIconBg, styles.tealBg]}>
+                <Text style={styles.securityOptionIcon}>🔑</Text>
+              </View>
+              <View style={styles.securityOptionContent}>
+                <Text style={styles.securityOptionTitle}>Passkey Support</Text>
+                <Text style={styles.securityOptionText}>
+                  Use your device's built-in passkey functionality for passwordless authentication. 
+                  The future of secure login.
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Text style={[styles.text, { marginTop: 12, fontStyle: 'italic', color: '#666' }]}>
+            💡 Tip: You can configure these options in the Settings tab and enable auto-lock 
+            to secure your app after a period of inactivity.
+          </Text>
+        </View>
+
         {/* Features Overview */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -447,6 +523,15 @@ const styles = StyleSheet.create({
   },
   greenBg: {
     backgroundColor: '#51cf66',
+  },
+  purpleBg: {
+    backgroundColor: '#845ef7',
+  },
+  orangeBg: {
+    backgroundColor: '#ff922b',
+  },
+  tealBg: {
+    backgroundColor: '#20c997',
   },
   redBg: {
     backgroundColor: '#ff6b6b',

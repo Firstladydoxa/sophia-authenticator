@@ -64,9 +64,18 @@ export default function SecuritySettingsScreen() {
   };
 
   const checkBiometricAvailability = async () => {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    setBiometricAvailable(hasHardware && isEnrolled);
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      
+      console.log('Biometric check:', { hasHardware, isEnrolled, supportedTypes });
+      
+      setBiometricAvailable(hasHardware && isEnrolled);
+    } catch (error) {
+      console.error('Error checking biometric availability:', error);
+      setBiometricAvailable(false);
+    }
   };
 
   const handleToggleEnabled = async (value: boolean) => {
@@ -98,9 +107,21 @@ export default function SecuritySettingsScreen() {
 
   const handleSelectLockType = async (type: AppLockType) => {
     if (type === 'biometric' && !biometricAvailable) {
+      // Get more details about why biometric is not available
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      
+      let message = 'Biometric authentication is not available on this device.';
+      
+      if (!hasHardware) {
+        message = 'This device does not have biometric hardware (fingerprint sensor or face recognition).';
+      } else if (!isEnrolled) {
+        message = 'No biometric data is enrolled on this device. Please set up fingerprint or face recognition in your device settings first.';
+      }
+      
       Alert.alert(
         'Biometric Not Available',
-        'Please set up biometric authentication in your device settings first.',
+        message,
         [{ text: 'OK' }]
       );
       return;
