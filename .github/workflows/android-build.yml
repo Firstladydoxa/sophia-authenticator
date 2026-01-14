@@ -1,0 +1,172 @@
+name: Android CI/CD - Build & Deploy APK
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  APP_NAME: SophiaAuthenticator
+  JAVA_VERSION: 17
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          cache-read-only: false
+          
+      - name: Decode Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$ENCODED_STRING" | base64 -d > android/app/sophia-authenticator-release.keystore
+          
+      - name: Create gradle.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore" >> android/gradle.properties
+          echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
+          echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
+          echo "SOPHIA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> android/gradle.properties
+          
+      - name: Decode google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          echo "$GOOGLE_SERVICES_JSON" | base64 -d > google-services.json
+          echo "$GOOGLE_SERVICES_JSON" | base64 -d > android/app/google-services.json
+          
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+        
+      - name: Build Release APK
+        working-directory: ./android
+        run: ./gradlew assembleRelease --stacktrace
+        
+      - name: Build Release AAB (Bundle)
+        working-directory: ./android
+        run: ./gradlew bundleRelease --stacktrace
+        
+      - name: Get version info
+        id: version
+        run: |
+          VERSION_NAME=$(grep "versionName" android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          VERSION_CODE=$(grep "versionCode" android/app/build.gradle | awk '{print $2}')
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "APK will be: $APP_NAME-v$VERSION_NAME-release.apk"
+          
+      - name: Sign APK
+        id: sign_apk
+        run: |
+          APK_PATH="android/app/build/outputs/apk/release/$APP_NAME-v${{ steps.version.outputs.version_name }}-release.apk"
+          if [ -f "$APK_PATH" ]; then
+            echo "APK found at: $APK_PATH"
+            echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          else
+            echo "Error: APK not found at expected path"
+            ls -la android/app/build/outputs/apk/release/
+            exit 1
+          fi
+          
+      - name: Verify APK Signature
+        run: |
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner verify --verbose ${{ steps.sign_apk.outputs.apk_path }}
+          
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-v${{ steps.version.outputs.version_name }}-apk
+          path: ${{ steps.sign_apk.outputs.apk_path }}
+          retention-days: 30
+          
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-v${{ steps.version.outputs.version_name }}-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+          
+      - name: Upload to Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ steps.sign_apk.outputs.apk_path }}
+            android/app/build/outputs/bundle/release/app-release.aab
+          name: Release ${{ steps.version.outputs.version_name }}
+          body: |
+            ## Sophia Authenticator v${{ steps.version.outputs.version_name }}
+            
+            ### 📦 Downloads
+            - **APK:** For direct installation
+            - **AAB:** For Google Play Store submission
+            
+            ### 📋 Build Information
+            - Version: ${{ steps.version.outputs.version_name }} (Code: ${{ steps.version.outputs.version_code }})
+            - Package: com.sophiauthenticator.app
+            - Min SDK: Android 7.0 (API 24)
+            - Target SDK: Android 15 (API 36)
+            - Signed: ✅ Production Keystore
+            
+            ### 🔧 Installation
+            ```bash
+            # Install APK
+            adb install ${{ env.APP_NAME }}-v${{ steps.version.outputs.version_name }}-release.apk
+            ```
+            
+            ### ✅ Verification
+            APK signature verified with production keystore.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Build Notification
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+    
+    steps:
+      - name: Build Success Notification
+        if: needs.build.result == 'success'
+        run: |
+          echo "✅ Build successful!"
+          echo "APK has been built and uploaded as artifact"
+          
+      - name: Build Failure Notification
+        if: needs.build.result == 'failure'
+        run: |
+          echo "❌ Build failed!"
+          echo "Check the logs for details"
+          exit 1

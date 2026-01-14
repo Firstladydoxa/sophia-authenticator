@@ -11,6 +11,24 @@ npm-debug.*
 web-build/
 .env
 
+# Keystore files - NEVER commit these
+*.keystore
+android/app/*.keystore
+
+# Gradle properties with secrets - NEVER commit with real passwords
+android/gradle.properties
+
+# Firebase configuration - NEVER commit with real API keys
+google-services.json
+android/app/google-services.json
+ios/GoogleService-Info.plist
+
+# Build outputs
+*.apk
+*.aab
+android/app/build/
+android/build/
+
 # Documentation files
 *.md
 !README.md

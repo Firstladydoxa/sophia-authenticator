@@ -1,4 +1,4 @@
-package com.sophiaauthenticator
+package com.sophiauthenticator.app
 
 import android.app.Application
 import android.content.res.Configuration
@@ -29,9 +29,9 @@ class MainApplication : Application(), ReactApplication {
 
           override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
-          override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+          override fun getUseDeveloperSupport(): Boolean = com.sophiauthenticator.app.BuildConfig.DEBUG
 
-          override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+          override val isNewArchEnabled: Boolean = com.sophiauthenticator.app.BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
       }
   )
 
@@ -41,7 +41,7 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     DefaultNewArchitectureEntryPoint.releaseLevel = try {
-      ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
+      ReleaseLevel.valueOf(com.sophiauthenticator.app.BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
     } catch (e: IllegalArgumentException) {
       ReleaseLevel.STABLE
     }

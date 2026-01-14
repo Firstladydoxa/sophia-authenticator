@@ -88,13 +88,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.sophiaauthenticator"
+    namespace "com.sophiauthenticator.app"
     defaultConfig {
-        applicationId "com.sophiaauthenticator"
+        applicationId "com.sophiauthenticator.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
+        setProperty("archivesBaseName", "SophiaAuthenticator-v$versionName")
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -105,18 +106,24 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('SOPHIA_RELEASE_STORE_FILE')) {
+                storeFile file(SOPHIA_RELEASE_STORE_FILE)
+                storePassword SOPHIA_RELEASE_STORE_PASSWORD
+                keyAlias SOPHIA_RELEASE_KEY_ALIAS
+                keyPassword SOPHIA_RELEASE_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
-            def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
-            shrinkResources enableShrinkResources.toBoolean()
+            signingConfig signingConfigs.release
             minifyEnabled enableMinifyInReleaseBuilds
+            def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
+            shrinkResources (minifyEnabled && enableShrinkResources.toBoolean())
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             def enablePngCrunchInRelease = findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true'
             crunchPngs enablePngCrunchInRelease.toBoolean()
