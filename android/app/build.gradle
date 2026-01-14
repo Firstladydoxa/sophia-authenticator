@@ -129,6 +129,17 @@ android {
             crunchPngs enablePngCrunchInRelease.toBoolean()
         }
     }
+    
+    // Configure APK output naming
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def appName = "SophiaAuthenticator"
+            def versionName = variant.versionName
+            def buildType = variant.buildType.name
+            outputFileName = "${appName}-v${versionName}-${buildType}.apk"
+        }
+    }
+    
     packagingOptions {
         jniLibs {
             def enableLegacyPackaging = findProperty('expo.useLegacyPackaging') ?: 'false'
