@@ -132,11 +132,8 @@ android {
     
     // Configure APK output naming
     applicationVariants.all { variant ->
-        variant.outputs.all {
-            def appName = "SophiaAuthenticator"
-            def versionName = variant.versionName
-            def buildType = variant.buildType.name
-            outputFileName = "${appName}-v${versionName}-${buildType}.apk"
+        variant.outputs.all { output ->
+            outputFileName = "SophiaAuthenticator-v${variant.versionName}-${variant.buildType.name}.apk"
         }
     }
     
