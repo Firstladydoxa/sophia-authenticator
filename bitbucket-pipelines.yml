@@ -1,0 +1,115 @@
+image: mingc/android-build-box:latest
+
+pipelines:
+  default:
+    - step:
+        name: Build Android APK
+        caches:
+          - gradle
+          - node
+        script:
+          # Install Node.js dependencies
+          - npm install
+          
+          # Decode and setup keystore
+          - echo $KEYSTORE_BASE64 | base64 -d > android/app/sophia-authenticator-release.keystore
+          
+          # Decode and setup google-services.json
+          - echo $GOOGLE_SERVICES_JSON | base64 -d > google-services.json
+          - cp google-services.json android/app/
+          
+          # Setup gradle properties
+          - echo "SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore" >> android/gradle.properties
+          - echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
+          - echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
+          - echo "SOPHIA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> android/gradle.properties
+          
+          # Build Release APK
+          - cd android
+          - chmod +x ./gradlew
+          - ./gradlew assembleRelease
+          
+          # Build Release AAB
+          - ./gradlew bundleRelease
+          
+          # Verify APK signature
+          - $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose android/app/build/outputs/apk/release/app-release.apk || true
+          
+        artifacts:
+          - android/app/build/outputs/apk/release/*.apk
+          - android/app/build/outputs/bundle/release/*.aab
+          
+  branches:
+    main:
+      - step:
+          name: Build and Deploy Release
+          caches:
+            - gradle
+            - node
+          script:
+            # Install dependencies
+            - npm install
+            
+            # Decode keystore and Firebase config
+            - echo $KEYSTORE_BASE64 | base64 -d > android/app/sophia-authenticator-release.keystore
+            - echo $GOOGLE_SERVICES_JSON | base64 -d > google-services.json
+            - cp google-services.json android/app/
+            
+            # Setup gradle properties
+            - echo "SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> android/gradle.properties
+            
+            # Build APK and AAB
+            - cd android
+            - chmod +x ./gradlew
+            - ./gradlew assembleRelease bundleRelease
+            
+            # Get version from build.gradle
+            - VERSION_NAME=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '"')
+            - echo "Building version $VERSION_NAME"
+            
+          artifacts:
+            - android/app/build/outputs/apk/release/*.apk
+            - android/app/build/outputs/bundle/release/*.aab
+            
+  tags:
+    v*:
+      - step:
+          name: Build Release for Tag
+          caches:
+            - gradle
+            - node
+          script:
+            # Install dependencies
+            - npm install
+            
+            # Decode keystore and Firebase config
+            - echo $KEYSTORE_BASE64 | base64 -d > android/app/sophia-authenticator-release.keystore
+            - echo $GOOGLE_SERVICES_JSON | base64 -d > google-services.json
+            - cp google-services.json android/app/
+            
+            # Setup gradle properties
+            - echo "SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
+            - echo "SOPHIA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> android/gradle.properties
+            
+            # Build APK and AAB
+            - cd android
+            - chmod +x ./gradlew
+            - ./gradlew assembleRelease bundleRelease
+            
+            # Get version
+            - VERSION_NAME=$(grep "versionName" app/build.gradle | awk '{print $2}' | tr -d '"')
+            - echo "Building release $BITBUCKET_TAG for version $VERSION_NAME"
+            
+          artifacts:
+            - android/app/build/outputs/apk/release/*.apk
+            - android/app/build/outputs/bundle/release/*.aab
+
+definitions:
+  caches:
+    gradle: ~/.gradle/caches
+    node: node_modules

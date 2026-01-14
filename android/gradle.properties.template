@@ -49,11 +49,6 @@ edgeToEdgeEnabled=true
 # Enable GIF support in React Native images (~200 B increase)
 expo.gif.enabled=true
 
-# Release signing configuration
-SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore
-SOPHIA_RELEASE_KEY_ALIAS=sophia-authenticator
-SOPHIA_RELEASE_STORE_PASSWORD=SophiaAuth2026!
-SOPHIA_RELEASE_KEY_PASSWORD=SophiaAuth2026!
 # Enable webp support in React Native images (~85 KB increase)
 expo.webp.enabled=true
 # Enable animated webp support (~3.4 MB increase)
@@ -65,3 +60,11 @@ EX_DEV_CLIENT_NETWORK_INSPECTOR=true
 
 # Use legacy packaging to compress native libraries in the resulting APK.
 expo.useLegacyPackaging=false
+
+# Release signing configuration
+# NOTE: These values are injected by GitHub Actions during CI/CD builds
+# For local builds, copy this file to gradle.properties and add your actual values:
+# SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore
+# SOPHIA_RELEASE_KEY_ALIAS=sophia-authenticator
+# SOPHIA_RELEASE_STORE_PASSWORD=your_password
+# SOPHIA_RELEASE_KEY_PASSWORD=your_password
