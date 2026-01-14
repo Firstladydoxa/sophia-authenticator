@@ -55,6 +55,8 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
+          cp android/gradle.properties.template android/gradle.properties
+          echo "" >> android/gradle.properties
           echo "SOPHIA_RELEASE_STORE_FILE=sophia-authenticator-release.keystore" >> android/gradle.properties
           echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
           echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
