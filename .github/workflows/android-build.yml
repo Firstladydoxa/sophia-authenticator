@@ -110,37 +110,35 @@ jobs:
         working-directory: ./android
         run: ./gradlew bundleRelease --stacktrace
         
-      - name: Get version info
+      - name: Get version info and locate APK
         id: version
         run: |
           VERSION_NAME=$(grep "versionName" android/app/build.gradle | awk '{print $2}' | tr -d '"')
           VERSION_CODE=$(grep "versionCode" android/app/build.gradle | awk '{print $2}')
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "APK will be: $APP_NAME-v$VERSION_NAME-release.apk"
+          echo "Version: $VERSION_NAME (Code: $VERSION_CODE)"
           
-      - name: Sign APK
-        id: sign_apk
-        run: |
-          APK_PATH="android/app/build/outputs/apk/release/$APP_NAME-v${{ steps.version.outputs.version_name }}-release.apk"
-          if [ -f "$APK_PATH" ]; then
-            echo "APK found at: $APK_PATH"
-            echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          # Find the actual APK file
+          APK_FILE=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | head -1)
+          if [ -n "$APK_FILE" ]; then
+            echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+            echo "✅ APK found: $APK_FILE"
           else
-            echo "Error: APK not found at expected path"
-            ls -la android/app/build/outputs/apk/release/
+            echo "❌ No APK found"
+            ls -la android/app/build/outputs/apk/release/ || echo "Directory not found"
             exit 1
           fi
           
       - name: Verify APK Signature
         run: |
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner verify --verbose ${{ steps.sign_apk.outputs.apk_path }}
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner verify --verbose ${{ steps.version.outputs.apk_path }}
           
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.APP_NAME }}-v${{ steps.version.outputs.version_name }}-apk
-          path: ${{ steps.sign_apk.outputs.apk_path }}
+          path: ${{ steps.version.outputs.apk_path }}
           retention-days: 30
           
       - name: Upload AAB Artifact
@@ -155,7 +153,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ steps.sign_apk.outputs.apk_path }}
+            ${{ steps.version.outputs.apk_path }}
             android/app/build/outputs/bundle/release/app-release.aab
           name: Release ${{ steps.version.outputs.version_name }}
           body: |
