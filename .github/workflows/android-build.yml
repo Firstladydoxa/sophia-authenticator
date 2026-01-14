@@ -42,12 +42,38 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: false
+      
+      - name: Verify Secrets
+        run: |
+          echo "Checking if secrets are set..."
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "ERROR: KEYSTORE_BASE64 secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then
+            echo "ERROR: KEYSTORE_PASSWORD secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.KEY_ALIAS }}" ]; then
+            echo "ERROR: KEY_ALIAS secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "ERROR: KEY_PASSWORD secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "ERROR: GOOGLE_SERVICES_JSON secret is not set"
+            exit 1
+          fi
+          echo "✅ All secrets are configured"
           
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           echo "$ENCODED_STRING" | base64 -d > android/app/sophia-authenticator-release.keystore
+          ls -lh android/app/sophia-authenticator-release.keystore
           
       - name: Create gradle.properties
         env:
@@ -61,6 +87,8 @@ jobs:
           echo "SOPHIA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> android/gradle.properties
           echo "SOPHIA_RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> android/gradle.properties
           echo "SOPHIA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> android/gradle.properties
+          echo "✅ gradle.properties created"
+          tail -5 android/gradle.properties
           
       - name: Decode google-services.json
         env:
@@ -68,6 +96,8 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICES_JSON" | base64 -d > google-services.json
           echo "$GOOGLE_SERVICES_JSON" | base64 -d > android/app/google-services.json
+          echo "✅ google-services.json created"
+          ls -lh google-services.json android/app/google-services.json
           
       - name: Make gradlew executable
         run: chmod +x android/gradlew
