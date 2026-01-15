@@ -81,9 +81,9 @@ jobs:
       
       - name: Decode Keystore
         env:
-          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          ENCODED_STRING: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "$KEYSTORE_FILE" | base64 -d > android/app/sophia-authenticator-release.keystore
+          echo "$ENCODED_STRING" | base64 -d > android/app/sophia-authenticator-release.keystore
           ls -lh android/app/sophia-authenticator-release.keystore
           
       - name: Create gradle.properties
