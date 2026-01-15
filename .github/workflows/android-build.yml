@@ -113,17 +113,24 @@ jobs:
       - name: Get version info and locate APK
         id: version
         run: |
+          # Extract version information
           VERSION_NAME=$(grep "versionName" android/app/build.gradle | awk '{print $2}' | tr -d '"')
           VERSION_CODE=$(grep "versionCode" android/app/build.gradle | awk '{print $2}')
-          echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
-          echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
-          echo "Version: ${VERSION_NAME} (Code: ${VERSION_CODE})"
           
-          # Find the actual APK file
+          # Set outputs using proper syntax
+          {
+            echo "version_name=$VERSION_NAME"
+            echo "version_code=$VERSION_CODE"
+          } >> $GITHUB_OUTPUT
+          
+          echo "Version: $VERSION_NAME (Code: $VERSION_CODE)"
+          
+          # Find the APK file
           APK_FILE=$(find android/app/build/outputs/apk/release -name "*.apk" -type f | head -1)
+          
           if [ -n "$APK_FILE" ]; then
-            echo "apk_path=${APK_FILE}" >> "$GITHUB_OUTPUT"
-            echo "✅ APK found: ${APK_FILE}"
+            echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+            echo "✅ APK found: $APK_FILE"
           else
             echo "❌ No APK found"
             ls -la android/app/build/outputs/apk/release/ || echo "Directory not found"
