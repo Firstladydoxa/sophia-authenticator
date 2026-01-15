@@ -32,6 +32,11 @@ android/build/
 # Documentation files
 *.md
 !README.md
+!APP-METADATA.md
+!TNI-APPSTORE-SETUP.md
+!DEVELOPER-QUICK-START.md
+!CI_CD_IMPLEMENTATION_COMPLETE.md
+!GITHUB_ACTIONS_SETUP.md
 
 # macOS
 .DS_Store
